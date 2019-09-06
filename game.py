@@ -1,26 +1,26 @@
 import random
 def blackjacksum(hand):# computes the sum by assuming appropriate value
     if sum(hand)<=11:  # of Ace card(either 1 or 11) acc. to the sum.
-        if hand[0]==1:
-            hand[0]==11
-        elif hand[1]==1:
-            hand[1]==11
+        for i in range(len(hand)):
+            if hand[i]==1:
+                hand[i]=11
+                break
     elif sum(hand)>21:
-        if hand[0]==11:
-            hand[0]==1
-        elif hand[1]==11:
-            hand[1]==1
+        for i in range(len(hand)):
+            if hand[i] == 11:
+                hand[i] = 1
+                break
     return sum(hand),hand
 ###################################
-def move(hand,cards,bet):
-    sum,hand[0]=blackjacksum(hand[0])
-    if sum>=21:
-        if sum>21:
+def move(hand,cards,bet):# Here, hand is a nested list inside a list. It is a list of all hands of a player.
+    sum_,hand[0]=blackjacksum(hand[0])
+    if sum_>=21:
+        if sum_>21:
             print("You got busted!")
         else:
             print("Blackjack!")
         return hand,bet
-    print("Your sum is",sum)
+    print("Your sum is",sum_)
     choice=input("Press H to Hit, S to Stand, D to Double-Down, P to sPlit")
 
     if choice in['H','h']:
@@ -28,8 +28,8 @@ def move(hand,cards,bet):
         print("Newcard is",newcard)
         hand[0].append(newcard)
         print("Updated hand is",hand[0])
-        sum, hand[0] = blackjacksum(hand[0])
-        print("Your sum is", sum)
+        sum_, hand[0] = blackjacksum(hand[0])
+        print("Your sum is", sum_)
         hand,bet=move(hand,cards,bet)
         return hand,bet
 
@@ -41,8 +41,8 @@ def move(hand,cards,bet):
         print("Newcard is", newcard)
         hand[0].append(newcard)
         print("Updated hand is", hand[0])
-        sum, hand[0] = blackjacksum(hand[0])
-        print("Your sum is", sum)
+        sum_, hand[0] = blackjacksum(hand[0])
+        print("Your sum is", sum_)
         bet[0]=bet[0]*2
         print("Your new bet is", bet[0])
         return hand,bet
@@ -79,7 +79,6 @@ def move(hand,cards,bet):
             hand, bet = move(hand, cards, bet)
             return hand, bet
 ############################################################################
-
 # Main driver code
 print("Welcome to the casino! Let's play blackjack!")
 n=int(input("How many players are playing?"))
@@ -108,38 +107,37 @@ for i in range(n):
     players[i]['hands'],players[i]['bets']=move(players[i]['hands'],cards,players[i]['bets'])
     print(players[i]['hands'],"      ",players[i]['bets'])
 print("Dealer hand:",dealerhand)
-while sum(dealerhand)<17:
+dealersum,dealerhand=blackjacksum(dealerhand)
+while dealersum<17:
     dealerhand.append(random.choice(cards))
+    dealersum,dealerhand=blackjacksum(dealerhand)
 for i in range(n):
     print("Let's see your results")
     for j in range(len(players[i]['hands'])):
         hand=players[i]['hands'][j]
         bet=players[i]['bets'][j]
-        sum,hand=blackjacksum(hand)
+        sum_,hand=blackjacksum(hand)
         dealersum,dealerhand=blackjacksum(dealerhand)
-        print("For the hand-",hand,'sum is-',sum)
+        print("For the hand-",hand,'sum is-',sum_)
         if len(hand)==2 and sum==21:
             print("Blackjack!")
             players[i]['profit'].append(bet*1.5)
-        elif sum>21:
+        elif sum_>21:
             print("Busted")
             players[i]['profit'].append(bet * -1)
         elif dealersum>21:
             print("Dealer Busted")
             players[i]['profit'].append(bet*1)
-        elif dealersum>sum:
+        elif dealersum>sum_:
             print("You lost")
             players[i]['profit'].append(bet * -1)
-        elif sum>dealersum:
+        elif sum_>dealersum:
             print("You win")
             players[i]['profit'].append(bet * 1)
-        elif sum==21 and dealersum==21 and len(dealerhand)==2 and len(hand)>2:
+        elif sum_==21 and dealersum==21 and len(dealerhand)==2 and len(hand)>2:
             print("You lost")
             players[i]['profit'].append(bet * -1)
-        elif sum==dealersum:
+        elif sum_==dealersum:
             print("Push")
             players[i]['profit'].append(bet * 0)
-
-
-
-
+        print("Profit is-",players[i]['profit'])
