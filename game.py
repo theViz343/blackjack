@@ -2,18 +2,22 @@ import random
 def wiped_slate(players):
     for player in players:
         player['hands']=[]
+        player['suits']=[]
         player['bets']=[]
     return players
-def pprinthand(hand):
+def pprinthand(hand,suit):
     temphand=hand[:]
     for i in range(len(temphand)):
         if temphand[i]==1 or temphand[i]==11:
-            temphand[i]='A'
+            temphand[i]='A'           # 1 or 11 is value of ace.
+        elif temphand[i]==10:
+            temphand[i]='F'           # 10 is value of all face cards.
+        temphand[i]=str(temphand[i])+" of "+suit[i]
     return temphand
-def pprinthandlist(handlist):
+def pprinthandlist(handlist,suitlist):
     newhandlist=[]
-    for hand in handlist:
-        newhandlist.append(pprinthand(hand))
+    for i in range(len(handlist)):
+        newhandlist.append(pprinthand(handlist[i],suitlist[i]))
     return newhandlist
 ##################################
 def blackjacksum(hand):# computes the sum by assuming appropriate value
@@ -29,87 +33,101 @@ def blackjacksum(hand):# computes the sum by assuming appropriate value
                 break
     return sum(hand),hand
 ###################################
-def move(hand,cards,bet):# Here, hand is a nested list inside a list. It is a list of all hands of a player.
+def move(hand,suit,cards,suits,bet):# Here, hand is a nested list inside a list. It is a list of all hands of a player.
     sum_,hand[0]=blackjacksum(hand[0])
-    print("Your hand is", pprinthand(hand[0]))
+    print("Your hand is", pprinthand(hand[0],suit[0]))
     print("Your sum is", sum_)
     if sum_>21:
         print("You got busted!")
-        return hand, bet
+        return hand,suit, bet
     elif sum_==21 and len(hand)==2:
         print("Blackjack!")
-        return hand, bet
+        return hand,suit, bet
     choice=input("Press H to Hit, S to Stand, D to Double-Down, P to sPlit")
 
     if choice in['H','h']:
         newcard=random.choice(cards)
-        print("Newcard is",newcard)
+        newsuit = random.choice(suits)
+        print("Newcard is",str(newcard)+" of "+newsuit)
         hand[0].append(newcard)
-        print("Updated hand is",pprinthand(hand[0]))
+        suit[0].append(newsuit)
+        print("Updated hand is",pprinthand(hand[0],suit[0]))
         sum_, hand[0] = blackjacksum(hand[0])
-        hand,bet=move(hand,cards,bet)
-        return hand,bet
+        hand,suit,bet=move(hand,suit,cards,suits,bet)
+        return hand,suit,bet
 
     if choice in['S','s']:
-        return hand,bet
+        return hand,suit,bet
 
     if choice in['D','d']:
         newcard = random.choice(cards)
         print("Newcard is", newcard)
+        newsuit = random.choice(suits)
         hand[0].append(newcard)
-        print("Updated hand is", pprinthand(hand[0]))
+        suit[0].append(newsuit)
+        print("Updated hand is", pprinthand(hand[0],suit[0]))
         sum_, hand[0] = blackjacksum(hand[0])
         print("Your sum is", sum_)
         if sum_ > 21:
             print("You got busted!")
         bet[0]=bet[0]*2
         print("Your new bet is", bet[0])
-        return hand,bet
+        return hand,suit,bet
 
     if choice in['P','p']:
         if hand[0][0]==hand[0][1]:
             if not hand[0][0]==1:
                 splitHand1=[[0,0]]
                 splitHand2=[[0,0]]
+                splitSuit1 = [[0, 0]]
+                splitSuit2 = [[0, 0]]
                 newcard1=random.choice(cards)
-                print("Newcard for first split is",newcard1)
+                newsuit1 = random.choice(suits)
+                print("Newcard for first split is",str(newcard1)+" of "+newsuit1)
                 newcard2 = random.choice(cards)
-                print("Newcard for second split is", newcard2)
+                newsuit2 = random.choice(suits)
+                print("Newcard for second split is", str(newcard2)+" of "+newsuit2)
                 splitHand1[0][0] = hand[0][0]
-                splitHand2[0][0] = hand[0][0]
+                splitHand2[0][0] = hand[0][1]
                 splitHand1[0][1] = newcard1
                 splitHand2[0][1] = newcard2
-                print("Split hands are",pprinthand(splitHand1[0]),", ",pprinthand(splitHand2[0]))
+                splitSuit1[0][0] = suit[0][0]
+                splitSuit2[0][0] = suit[0][1]
+                splitSuit1[0][1] = newsuit1
+                splitSuit2[0][1] = newsuit2
+                print("Split hands are",pprinthand(splitHand1[0],splitSuit1[0]),", ",pprinthand(splitHand2[0],splitSuit2[0]))
                 sum1,splitHand1[0] = blackjacksum(splitHand1[0])
                 sum2, splitHand2[0] = blackjacksum(splitHand2[0])
                 print("Your sum for split 1 is", sum1)
                 print("Your sum for split 2 is", sum2)
                 bet1=bet[:]
                 bet2 = bet[:]
-                splitHand1,bet1=move(splitHand1,cards,bet1)
-                splitHand2,bet2=move(splitHand2,cards,bet2)
+                splitHand1,splitSuit1,bet1=move(splitHand1,splitSuit1,cards,suits,bet1)
+                splitHand2,splitSuit2,bet2=move(splitHand2,splitSuit2,cards,suits,bet2)
                 splitHand1.extend(splitHand2)#converting both hands to a single list
+                splitSuit1.extend(splitSuit2)
                 bet1.extend(bet2)#converting both bets to a single list
-                return splitHand1,bet1
+                return splitHand1,splitSuit1,bet1
             else:
                 print("Sorry,you can't split aces")
-                hand,bet=move(hand,cards,bet)
-                return hand,bet
+                hand,suit,bet=move(hand,suit,cards,suits,bet)
+                return hand,suit,bet
         else:
             print("Sorry, you can only split hands with identical cards")
-            hand, bet = move(hand, cards, bet)
-            return hand, bet
+            hand,suit, bet = move(hand,suit, cards,suits, bet)
+            return hand,suit, bet
 ############################################################################
-# Main driver code
+# # Main driver code
 print("Welcome to the casino! Let's play blackjack!")
 n=int(input("How many players are playing?"))
 players=[]
 dealerhand=[]
 for i in range(n):
     name=input("Enter name, Player{}".format(i+1))
-    players.append({"name":name,"hands":[],"bets":[],'profit':[]})
+    players.append({"name":name,"hands":[],"suits":[],"bets":[],'profit':[]})
 print(players)
 cards=[1,2,3,4,5,6,7,8,9,10,10,10,10]
+suits=['spades','hearts','diamonds','clubs']
 choice='y'
 while choice in "Yy":
     print("Let's start the game!")
@@ -123,37 +141,42 @@ while choice in "Yy":
     for i in range(n):
         print(players[i]["name"],"Your cards....")
         hand=[random.choice(cards),random.choice(cards)]
+        suit=[random.choice(suits),random.choice(suits)]
         players[i]["hands"].append(hand)
-        print(pprinthand(hand))
+        players[i]["suits"].append(suit)
+        print(pprinthand(hand,suit))
     ########### Dealer's cards
     dealerhand=[random.choice(cards),random.choice(cards)]
-    print("Dealer hand:",pprinthand(dealerhand)[0],",hidden")
+    dealersuit=[random.choice(suits),random.choice(suits)]
+    print("Dealer hand:",pprinthand(dealerhand,dealersuit)[0],",hidden")
     ########### Players' moves
     for i in range(n):
         print("It's your turn,", players[i]['name'])
-        players[i]['hands'],players[i]['bets']=move(players[i]['hands'],cards,players[i]['bets'])
+        players[i]['hands'],players[i]['suits'],players[i]['bets']=move(players[i]['hands'],players[i]['suits'],cards,suits,players[i]['bets'])
         print("Your hands and respective bets for this round are:")
-        print(pprinthandlist(players[i]['hands']),"      ",players[i]['bets'])
+        print(pprinthandlist(players[i]['hands'],players[i]['suits']),"      ",players[i]['bets'])
     ########### Dealer's moves
-    print("Dealer hand:",pprinthand(dealerhand))
+    print("Dealer hand:",pprinthand(dealerhand,dealersuit))
     dealersum,dealerhand=blackjacksum(dealerhand)
     print("Dealer's sum is",dealersum)
-    while dealersum<17:
+    while dealersum<17 or (dealersum==17 and 11 in dealerhand) :
         print("Dealer draws another card")
         dealerhand.append(random.choice(cards))
-        print("Newcard is",dealerhand[-1])
+        dealersuit.append(random.choice(suits))
+        print("Newcard is",str(dealerhand[-1])+" of "+dealersuit[-1])
         dealersum,dealerhand=blackjacksum(dealerhand)
         print("Dealer's sum is", dealersum)
-        print("Dealer's hand is", pprinthand(dealerhand))
+        print("Dealer's hand is", pprinthand(dealerhand,dealersuit))
     ########### Profit Calculation
     for i in range(n):
         print("Let's see your results",players[i]['name'])
         for j in range(len(players[i]['hands'])):
             hand=players[i]['hands'][j]
+            suit=players[i]['suits'][j]
             bet=players[i]['bets'][j]
             sum_,hand=blackjacksum(hand)
             dealersum,dealerhand=blackjacksum(dealerhand)
-            print("For the hand-",pprinthand(hand),'sum is-',sum_)
+            print("For the hand-",pprinthand(hand,suit),'sum is-',sum_)
             if len(hand)==2 and sum_==21:
                 print("Blackjack!")
                 profit=bet*1.5
@@ -195,6 +218,3 @@ for i in range(n):                     # total profit calculation
         print(name,", your total profit is",profit)
     else:
         print(name, ", your total loss is", profit * -1)
-
-
-
