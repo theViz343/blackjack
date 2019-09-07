@@ -78,3 +78,4 @@ and will be treated as a regular 21.
 To familiarize yourself with the game, play it online for a few minutes. There are many online
 applets available, for example, http://www.simcasinogames.com/blackjack/ . The rules they follow
 may be slight variations of those used in the assignment, but you will get the general idea.
+***Search 247 blackjack and click on first link****
