@@ -1,4 +1,6 @@
 import random
+def delay():
+    n=input("Press enter to continue")
 def wiped_slate(players):
     for player in players:
         player['hands']=[]
@@ -125,10 +127,10 @@ dealerhand=[]
 for i in range(n):
     name=input("Enter name, Player{}".format(i+1))
     players.append({"name":name,"hands":[],"suits":[],"bets":[],'profit':[]})
-print(players)
 cards=[1,2,3,4,5,6,7,8,9,10,10,10,10]
 suits=['spades','hearts','diamonds','clubs']
 choice='y'
+delay()
 while choice in "Yy":
     print("Let's start the game!")
     ########### Bets
@@ -145,16 +147,19 @@ while choice in "Yy":
         players[i]["hands"].append(hand)
         players[i]["suits"].append(suit)
         print(pprinthand(hand,suit))
+    delay()
     ########### Dealer's cards
     dealerhand=[random.choice(cards),random.choice(cards)]
     dealersuit=[random.choice(suits),random.choice(suits)]
     print("Dealer hand:",pprinthand(dealerhand,dealersuit)[0],",hidden")
+    delay()
     ########### Players' moves
     for i in range(n):
         print("It's your turn,", players[i]['name'])
         players[i]['hands'],players[i]['suits'],players[i]['bets']=move(players[i]['hands'],players[i]['suits'],cards,suits,players[i]['bets'])
         print("Your hands and respective bets for this round are:")
         print(pprinthandlist(players[i]['hands'],players[i]['suits']),"      ",players[i]['bets'])
+        delay()
     ########### Dealer's moves
     print("Dealer hand:",pprinthand(dealerhand,dealersuit))
     dealersum,dealerhand=blackjacksum(dealerhand)
@@ -167,8 +172,10 @@ while choice in "Yy":
         dealersum,dealerhand=blackjacksum(dealerhand)
         print("Dealer's sum is", dealersum)
         print("Dealer's hand is", pprinthand(dealerhand,dealersuit))
+    delay()
     ########### Profit Calculation
     for i in range(n):
+        print('---------------------------')
         print("Let's see your results",players[i]['name'])
         for j in range(len(players[i]['hands'])):
             hand=players[i]['hands'][j]
@@ -206,9 +213,7 @@ while choice in "Yy":
                 profit = bet * 0
                 players[i]['profit'].append(bet * 0)
             print("Profit is-",profit)
-    print(players)
     players=wiped_slate(players)
-    print(players)
     choice=input("Do you wish to play another round?Y/n")
 print("OK then, Let's see the results")
 for i in range(n):                     # total profit calculation
@@ -218,3 +223,6 @@ for i in range(n):                     # total profit calculation
         print(name,", your total profit is",profit)
     else:
         print(name, ", your total loss is", profit * -1)
+
+
+
