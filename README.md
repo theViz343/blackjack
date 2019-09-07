@@ -2,7 +2,14 @@
 A blackjack game created as an assignment for the Python course in 2nd year.
 Before viewing the code, read the instructions for blackjack once again.
 This is just raw code. I plan on making it user friendly asap.
+
+
+
+
+
 Instructions:
+
+
 The game of Blackjack.
 Terminology cards: a standard deck of playing cards is used, i.e., four suits (clubs, diamonds,
 spades, and hearts) and 13 different cards within each suit (the numbers 2 through 10, jack, queen,
